@@ -3,53 +3,51 @@ class Solution {
         int res = -1;
         int maindominantnumber = findMainDominantNumber(nums);
         if(maindominantnumber == -1) return -1;
-        
-        for (int i = 0; i < nums.size(); i++) {
-            List<Integer> sublist1 = nums.subList(0, i);
-            List<Integer> sublist2 = nums.subList(i, nums.size());
-            //check valid list
-            boolean isvalid1 = isListValid(sublist1, maindominantnumber);
-            boolean isvalid2 = isListValid(sublist2, maindominantnumber);
-            // System.out.println("list1:"+sublist1+" - valid:"+isvalid1);
-            // System.out.println("list2:"+sublist2+" - valid:"+isvalid2);
-            if(isvalid1 && isvalid2) return i-1;
-        }
-        return res;
-    }
 
-    public boolean isListValid(List<Integer> sublist, int dominantNumber) {
-        if(sublist.isEmpty() || !sublist.contains(dominantNumber)) return false;
-
-        HashMap<Integer,Integer> map = new HashMap();
-        int count = 0;
-
-        for(int i = 0; i < sublist.size(); i++) {
-            if(sublist.get(i) == dominantNumber) {
-                count++;
+        int totalDominantCount = 0;
+        for (int num : nums) {
+            if (num == maindominantnumber) {
+                totalDominantCount++;
             }
         }
-        return count > sublist.size()/2;
+
+        int leftCount = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums.get(i) == maindominantnumber) {
+                leftCount++;
+            }
+
+            int leftSubarrayCount = leftCount;
+            int rightSubarrayCount = totalDominantCount - leftCount;
+            //check valid list
+            boolean isvalid1 = leftSubarrayCount > (i + 1) / 2 ;
+            boolean isvalid2 = rightSubarrayCount > (nums.size() - i - 1) / 2;
+            if(isvalid1 && isvalid2) return i;
+        }
+        return -1;
     }
 
     public int findMainDominantNumber(List<Integer> list) {
-        HashMap<Integer,Integer> map = new HashMap();
-        int maxFreq = -1;
-        int dominantNumber = -1;
+        int candidate = -1, count = 0;
 
         for(int i = 0; i < list.size(); i++) {
-            Integer currentValue = list.get(i);
-            if(map.containsKey(currentValue)) {
-                int currentValFreq = map.get(currentValue);
-                map.put(currentValue,(currentValFreq+1));
+            if(count == 0) {
+                candidate = list.get(i);
+                count = 1;
+            } else if(list.get(i) == candidate) {
+                count ++;
             } else {
-                map.put(currentValue,1);
-            }
-            
-            if(map.get(currentValue) > maxFreq) {
-                maxFreq = map.get(currentValue);
-                dominantNumber = currentValue;
+                count --;
             }
         }
-        return dominantNumber;
+        
+        for(int i = 0; i < list.size(); i++) {
+            if(list.get(i) == candidate) {
+                count++;
+            }
+        }
+        if( count > list.size()/2)
+            return candidate;
+            else return -1;
     }
 }
