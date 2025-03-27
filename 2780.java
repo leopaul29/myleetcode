@@ -1,54 +1,55 @@
-// import java.util.Collections; // Import the Collections class
-
 class Solution {
     public int minimumIndex(List<Integer> nums) {
         int res = -1;
-        // findDominantNumber(nums);
+        int maindominantnumber = findMainDominantNumber(nums);
+        if(maindominantnumber == -1) return -1;
+        
         for (int i = 0; i < nums.size(); i++) {
             List<Integer> sublist1 = nums.subList(0, i);
             List<Integer> sublist2 = nums.subList(i, nums.size());
-
-            int domSublist1 = findDominantNumber(sublist1);
-            int domSublist2 = findDominantNumber(sublist2);
-            if(domSublist1 == domSublist2) {
-                System.out.println(sublist1);
-                System.out.println(sublist2);
-                return i-1;
-            }
+            //check valid list
+            boolean isvalid1 = isListValid(sublist1, maindominantnumber);
+            boolean isvalid2 = isListValid(sublist2, maindominantnumber);
+            // System.out.println("list1:"+sublist1+" - valid:"+isvalid1);
+            // System.out.println("list2:"+sublist2+" - valid:"+isvalid2);
+            if(isvalid1 && isvalid2) return i-1;
         }
         return res;
     }
 
-    public int findDominantNumber(List<Integer> sublist) {
+    public boolean isListValid(List<Integer> sublist, int dominantNumber) {
+        if(sublist.isEmpty() || !sublist.contains(dominantNumber)) return false;
+
+        HashMap<Integer,Integer> map = new HashMap();
+        int count = 0;
+
+        for(int i = 0; i < sublist.size(); i++) {
+            if(sublist.get(i) == dominantNumber) {
+                count++;
+            }
+        }
+        return count > sublist.size()/2;
+    }
+
+    public int findMainDominantNumber(List<Integer> list) {
         HashMap<Integer,Integer> map = new HashMap();
         int maxFreq = -1;
         int dominantNumber = -1;
 
-        for(int i = 0; i < sublist.size(); i++) {
-            Integer currentValue = sublist.get(i);
-            if(map.size() == 0) {
-                map.put(currentValue,1);
-                maxFreq = 1;
-                dominantNumber = currentValue;
+        for(int i = 0; i < list.size(); i++) {
+            Integer currentValue = list.get(i);
+            if(map.containsKey(currentValue)) {
+                int currentValFreq = map.get(currentValue);
+                map.put(currentValue,(currentValFreq+1));
             } else {
-                if(map.containsKey(currentValue)) {
-                    int currentValFreq = map.get(currentValue);
-                    map.put(currentValue,(currentValFreq+1));
-                } else {
-                    map.put(currentValue,1);
-                }
-                
-                if(map.get(currentValue) > maxFreq) {
-                    maxFreq = map.get(currentValue);
-                    dominantNumber = currentValue;
-                }
+                map.put(currentValue,1);
+            }
+            
+            if(map.get(currentValue) > maxFreq) {
+                maxFreq = map.get(currentValue);
+                dominantNumber = currentValue;
             }
         }
-
-// The array [3,3,3,7,2,2] has 6 elements, the most frequent element has a frequency of 3.
-// More than half means that the frequency of the most frequent element is greater than half of all elements in the subarray.
-        if(maxFreq > sublist.size()/2) {
-            return dominantNumber;
-        } else { return -1;}
+        return dominantNumber;
     }
 }
